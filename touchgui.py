@@ -23,9 +23,6 @@
 # 02110-1301, USA.
 #
 
-debugging = False
-debugging = True
-
 import pygame, os
 from pygame.locals import *
 
@@ -409,7 +406,6 @@ class image_tile:
                     self.set_pressed ()
                     if self._action != None:
                         if self._double_tap (pygame.time.get_ticks ()):
-                            print "double tap seen"
                             self._action (self._getid, 2)
                         else:
                             self._action (self._getid, 1)

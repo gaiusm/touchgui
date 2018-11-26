@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import os
+
+datarootdir = os.path.join ("@prefix@", "share")
+touchguidir = os.path.join (datarootdir, "touchgui")

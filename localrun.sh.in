@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONPATH=@srcdir@ python @srcdir@/examples/$*

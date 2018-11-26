@@ -1,0 +1,25 @@
+Source: touchgui
+Section: python
+Priority: optional
+Maintainer: Gaius Mulley <gaius@southwales.ac.uk>
+Build-Depends:
+ debhelper (>= 9),
+ automake,
+ autoconf,
+ autotools-dev,
+ dh-python,
+ python-setuptools,
+ python
+Standards-Version: 3.9.5
+X-Python-Version: >= 2.3
+
+Package: touchgui
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-pygame
+Suggests:
+Conflicts:
+Description: touchgui is a python module which provides a
+ simple touch screen interface for pygame.  Allows callbacks
+ to be associated with images and glyphs.  It detects single
+ and double taps and provides the programmer with the ability
+ to interface with the event loop.
