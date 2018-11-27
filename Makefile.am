@@ -14,14 +14,14 @@ TEXI2HTML=python $(srcdir)/www/tools/texi2tr/src/texi2tr.py
 PYTHON_VERSION=$(strip $(shell python -V 2>&1 | cut -b8- | cut -f1-2 -d'.'))
 
 DISTFILES = Makefile.am configure.ac configure \
-            README version.c COPYING examples
+            README version.c COPYING examples doc
 
 all: force
-	ln -s $(srcdir)/images
+	echo "nothing to be done for all"
 
 install: force
 	cp $(srcdir)/touchgui.py .
-	cp $(srcdir)/palate.py .
+	cp $(srcdir)/touchguipalate.py .
 	PYTHONPATH=.:$(srcdir)/python python $(srcdir)/touchguisetup.py build
 	python -m py_compile touchgui.py
 	python -m py_compile touchguisetup.py
@@ -46,7 +46,7 @@ touchgui.dvi: touchgui-api.texi $(srcdir)/doc/touchgui.texi
 	texi2dvi -I $(srcdir)/ $(srcdir)/doc/touchgui.texi
 
 touchgui-api.texi:  force
-	python $(srcdir)/tools/py2texi.py -f$(srcdir)/python/touchgui.py > touchgui-api.texi
+	python $(srcdir)/tools/py2texi.py -f$(srcdir)/touchgui.py > touchgui-api.texi
 
 texi2tr.css: $(srcdir)/www/tools/texi2tr/html/texi2tr.css
 	cp $< $@
