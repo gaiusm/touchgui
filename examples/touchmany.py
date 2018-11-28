@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pygame, touchgui, touchguipalate, math
+import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
 
 # display_width, display_height = 1920, 1080
@@ -11,24 +11,33 @@ full_screen = True
 toggle_delay = 250
 
 
-def myquit (name = None):
+def event_test (event):
+    if (event.type == KEYDOWN) and (event.key == K_ESCAPE):
+        myquit (None)
+
+
+def myquit (name = None, tap = 1):
     pygame.display.update ()
     pygame.time.delay (toggle_delay * 2)
     pygame.quit ()
     quit ()
 
 
-def myreturn (name):
+def myreturn (name, tap = 1):
     global selection_complete
     pygame.display.update ()
     selection_complete = True
 
 
+def imagedir (name):
+    return os.path.join (touchguiconf.touchguidir, name)
+
+
 def button_list (name):
-    return [touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2grey (.5),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2grey (.1),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2rgb (.1, .2, .4)]
+    return [touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2grey (.5),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2grey (.1),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2rgb (.1, .2, .4)]
 
 
 def buttons ():
@@ -70,7 +79,7 @@ def main ():
     forms = buttons () + more_buttons ()
     print len (forms)
     gameDisplay.fill (touchguipalate.black)
-    touchgui.select (forms, myquit)
+    touchgui.select (forms, event_test)
 
 
 main ()

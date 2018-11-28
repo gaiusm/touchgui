@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pygame, touchgui, touchguipalate, math
+import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
 
 # display_width, display_height = 1920, 1080
@@ -16,7 +16,7 @@ def event_test (event):
         myquit (None)
 
 
-def myquit (name = None, tap = None):
+def myquit (name = None, tap = 1):
     print "quit called"
     pygame.display.update ()  # need this to see the button pressed before we quit
     pygame.time.delay (toggle_delay * 2) #  delay program so we see the button change
@@ -24,15 +24,19 @@ def myquit (name = None, tap = None):
     quit ()  #  and shutdown python
 
 
-def myreturn (name = None, tap = None):
+def myreturn (name, tap):
     print "return called"
 
 
+def imagedir (name):
+    return os.path.join (touchguiconf.touchguidir, name)
+
+
 def button_list (name):
-    return [touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2grey (.5),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2grey (.1),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)),
-            touchgui.image_gui ("images/PNG/White/2x/%s.png" % (name)).white2rgb (.1, .2, .4)]
+    return [touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2grey (.5),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2grey (.1),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)),
+            touchgui.image_gui (imagedir ("images/PNG/White/2x/%s.png") % (name)).white2rgb (.1, .2, .4)]
 
 #
 #  button - create a single power button and return it in a list.

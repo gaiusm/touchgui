@@ -27,7 +27,7 @@ import pygame, os
 from pygame.locals import *
 
 
-from palate import *
+from touchguipalate import *
 
 display_width, display_height = None, None
 fuzz = "100%"
@@ -35,15 +35,20 @@ fuzz = "100%"
 double_tap = 500   # no of millisecs to perform double tap
 
 
-def safe_system (command):
+#
+#  safe_system - execute, command, and check the shell
+#                result result is zero.  Exit if non zero.
+#
+
+def _safe_system (command):
     r = os.system (command)
     if r != 0:
         _errorf ("os.system:  failed when trying to execute: " + command + " with an exit code " + str (r))
 
 
-def check_exists (name):
+def _check_exists (name):
     # print name
-    if not os.path.isfile (cache_file (name)):
+    if not os.path.isfile (_cache_file (name)):
         _errorf ("convert has failed to generate " + name)
 
 #
@@ -82,37 +87,85 @@ def posX (v):
 
 #
 #  posY - v is a floating point number and posY returns the
-#         position in pixels.  0.0..1.0  X axis.
+#         position in pixels.  0.0..1.0  Y axis.
 #
 
 def posY (v):
     return display_height - unitY (v)
 
+#
+#  form - this class allows the programmer to group together multiple
+#         buttons and freeze/active the entire group.
+#
+
 class form:
     def __init__ (self, children):
         self.children = children
+    #
+    #  set_active - Pre-condition:  None.
+    #               Post-condition:  all buttons are in the active
+    #                                state.
+    #
     def set_active (self):
         for c in self.children:
             c.set_active ()
+    #
+    #  set_frozen - Pre-condition:  None.
+    #               Post-condition:  all buttons are in the frozen
+    #                                state.
+    #
     def set_frozen (self):
         for c in self.children:
             c.set_frozen ()
+    #
+    #  update - Pre-condition:  None.
+    #           Post-condition:  update all buttons.
+    #
     def update (self):
         for c in self.children:
             c.update ()
+    #
+    #  select - Pre-condition:  None.
+    #           Post-condition:  Tests whether the pointer is over any of the tiles
+    #                            and if so will invoke the callback of the button.
+    #
     def select (self):
         for c in self.children:
             c.select ()
+    #
+    #  dselect - Pre-condition:  None.
+    #            Post-condition:  Calls dselect on each tile in the form.
+    #
     def deselect (self):
         for c in self.children:
             c.deselect ()
 
-def text_objects (text, font, colour = white):
+#
+#  text_objects - create and return text and surface with a default white colour.
+#                 This is a helper function for text_tile.
+#
+
+def _text_objects (text, font, colour = white):
     textSurface = font.render (text, True, colour)
     return textSurface, textSurface.get_rect ()
 
 # tile_state enumerated type.  Order must be coordinated with the _colours list below
 tile_frozen, tile_active, tile_activated, tile_pressed = range (4)
+
+#
+#  text_tile - create a tile from text.
+#              Pre-condition:  None.
+#              Post-condition:  a new tile is created which has a default_colour,
+#                               activated_colour, pressed_colour and frozen_colour.
+#                               The text_size is in pixels.  x, y, width and height
+#                               define the area and position of the tile.  action
+#                               maybe a callback function which takes two parameters
+#                               (tid, tap_number).  The tid is the tile identification
+#                               passed at creation.  The tap_number will be 1 or 2.
+#                               The double tap, 2, will be invoked if the second tap
+#                               is within 500 milliseconds of the first.  The single
+#                               tap callback will preceed it.
+#
 
 class text_tile:
     def __init__ (self, default_colour, activated_colour, pressed_colour, frozen_colour,
@@ -130,7 +183,7 @@ class text_tile:
         self._text_message = text_message
         self._text_size = text_size
         self._text_font = pygame.font.SysFont (None, text_size)
-        self._text_surf, self._text_rect = text_objects (text_message, self._text_font, white)
+        self._text_surf, self._text_rect = _text_objects (text_message, self._text_font, white)
         self._text_rect.center = ( (x+(width/2)), (y+(height/2)) )
         self._state = tile_active
         self._flush = flush
@@ -159,32 +212,35 @@ class text_tile:
         result = (not ((self._ticks == None) or (ticks - self._ticks > double_tap)))
         self._ticks = ticks
         return result
+    #
+    #  dselect - places the tile into the active state.
+    #
     def deselect (self):
         if self._state != tile_frozen:
             self.set_active ()
     #
-    #  set_active - change the tile state to active and update if necessary
+    #  set_active - change the tile state to active and update if necessary.
     #
     def set_active (self):
         if self._state != tile_active:
             self._state = tile_active
             self.update ()
     #
-    #  set_activated - change the tile state to activated and update if necessary
+    #  set_activated - change the tile state to activated and update if necessary.
     #
     def set_activated (self):
         if self._state != tile_activated:
             self._state = tile_activated
             self.update ()
     #
-    #  set_frozen - change the tile state to frozen and update if necessary
+    #  set_frozen - change the tile state to frozen and update if necessary.
     #
     def set_frozen (self):
         if self._state != tile_frozen:
             self._state = tile_frozen
             self.update ()
     #
-    #  set_pressed - change the tile state to pressed and update if necessary
+    #  set_pressed - change the tile state to pressed and update if necessary.
     #
     def set_pressed (self):
         if self._state != tile_frozen:
@@ -206,31 +262,28 @@ class text_tile:
         if not (self._flush is None):
             self._flush ()
 
-
-def load_image (name):
-    return pygame.image.load (name).convert_alpha ()
-
-
 def flattern_directories (name):
     name = name.replace ("/", "-")
     # print "flattened", name
     return name
 
-def cache_file (name):
+def _cache_file (name):
+    # print name
     name = flattern_directories (name)
-    assert (name[0] != "-")
+    # print "flatterned to", name
+    # assert (name[0] != "-")
     return os.path.join (os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui"), name)
 
 
-def cache_exists (name):
+def _cache_exists (name):
     """
     print "looking up cache", name,
-    if os.path.isfile (cache_file (name)):
+    if os.path.isfile (_cache_file (name)):
         print "yes"
     else:
         print "no"
     """
-    return os.path.isfile (cache_file (name))
+    return os.path.isfile (_cache_file (name))
 
 #
 #  find_file - looks in the current directory for, name, and then looks up the cache.
@@ -239,8 +292,8 @@ def cache_exists (name):
 def find_file (name):
     if os.path.isfile (name):
         return name
-    if os.path.isfile (cache_file (name)):
-        return cache_file (name)
+    if os.path.isfile (_cache_file (name)):
+        return _cache_file (name)
     _errorf ("unable to find file " + name)
 
 
@@ -261,11 +314,11 @@ class image_gui:
 
     def grey (self):
         newname = "%s-grey" % (self.name.split ("/")[-1])
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -set colorspace Gray -separate -average %s" % (find_file (self.name), cache_file (newname)))
-        check_exists (newname)
+        _safe_system ("convert %s -set colorspace Gray -separate -average %s" % (find_file (self.name), _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -275,11 +328,11 @@ class image_gui:
 
     def white2red (self):
         newname = "%s-red" % (self.name.split ("/")[-1])
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -fuzz %s -fill red -opaque white %s" % (find_file (self.name), fuzz, cache_file (newname)))
-        check_exists (newname)
+        _safe_system ("convert %s -fuzz %s -fill red -opaque white %s" % (find_file (self.name), fuzz, _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -289,11 +342,11 @@ class image_gui:
 
     def white2blue (self):
         newname = "%s-blue" % (self.name.split ("/")[-1])
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -fuzz %s -fill blue -opaque white %s" % (find_file (self.name), fuzz, cache_file (newname)))
-        check_exists (newname)
+        _safe_system ("convert %s -fuzz %s -fill blue -opaque white %s" % (find_file (self.name), fuzz, _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -303,13 +356,13 @@ class image_gui:
 
     def white2grey (self, value=.85):
         newname = "%s-grey" % (self.name.split ("/")[-1])
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz,
+        _safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz,
                                                                                      int (value * 255.0), int (value * 255.0), int (value * 255.0),
-                                                                                     cache_file (newname)))
-        check_exists (newname)
+                                                                                     _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -322,11 +375,11 @@ class image_gui:
         g = int (g * 256.0)
         b = int (b * 256.0)
         newname = "%s-rgb-%d-%d-%d" % (self.name.split ("/")[-1], r, g, b)
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz, r, g, b, cache_file (newname)))
-        check_exists (newname)
+        _safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz, r, g, b, _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -336,11 +389,11 @@ class image_gui:
 
     def resize (self, width, height):
         newname = "%s-%dx%d" % (self.name.split ("/")[-1], width, height)
-        if cache_exists (newname):
+        if _cache_exists (newname):
             self.name = newname
             return self
-        safe_system ("convert %s -resize %dx%d\! %s" % (find_file (self.name), width, height, cache_file (newname)))
-        check_exists (newname)
+        _safe_system ("convert %s -resize %dx%d\! %s" % (find_file (self.name), width, height, _cache_file (newname)))
+        _check_exists (newname)
         self.name = newname
         return self
 
@@ -349,8 +402,8 @@ class image_gui:
     #
 
     def load_image (self):
-        if cache_exists (self.name):
-            return pygame.image.load (cache_file (self.name)).convert_alpha ()
+        if _cache_exists (self.name):
+            return pygame.image.load (_cache_file (self.name)).convert_alpha ()
         return pygame.image.load (self.name).convert_alpha ()
 
 
@@ -626,13 +679,13 @@ def set_display (display, width, height):
     gameDisplay = display
     display_width, display_height = width, height
 
-def create_cache ():
+def _create_cache ():
     d = os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui")
     os.system ("mkdir -p %s" % (d))
 
 def reset_cache ():
     d = os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui")
-    safe_system ("rm -r %s" % (d))
-    create_cache ()
+    _safe_system ("rm -r %s" % (d))
+    _create_cache ()
 
 # reset_cache ()

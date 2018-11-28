@@ -567,19 +567,20 @@ all: force
 	echo "nothing to be done for all"
 
 install: force
-	cp $(srcdir)/touchgui.py .
-	cp $(srcdir)/touchguipalate.py .
+	if [ ! -f touchgui.py ] ; then cp $(srcdir)/touchgui.py . ; fi
+	if [ ! -f touchguipalate.py ] ; then cp $(srcdir)/touchguipalate.py . ; fi
 	PYTHONPATH=.:$(srcdir)/python python $(srcdir)/touchguisetup.py build
 	python -m py_compile touchgui.py
-	python -m py_compile touchguisetup.py
+	python -m py_compile touchguiconf.py
 	python -m py_compile touchguipalate.py
 	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
-	$(INSTALL_PROGRAM) -m 644 touchguisetup.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
-	$(INSTALL_PROGRAM) -m 644 touchguisetup.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
+	$(INSTALL_PROGRAM) -m 644 touchguiconf.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
+	$(INSTALL_PROGRAM) -m 644 touchguiconf.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguipalate.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguipalate.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
+	cd $(srcdir) && tar cf - images | (mkdir -p $(DESTDIR)/$(datarootdir)/touchgui && cd $(DESTDIR)/$(datarootdir)/touchgui && tar xf -)
 
 documentation: touchgui.pdf touchgui.html texi2tr.css
 
