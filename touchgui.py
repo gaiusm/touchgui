@@ -46,6 +46,10 @@ def _safe_system (command):
         _errorf ("os.system:  failed when trying to execute: " + command + " with an exit code " + str (r))
 
 
+#
+#  check_exists - internal check to ensure, name, is present.
+#
+
 def _check_exists (name):
     # print name
     if not os.path.isfile (_cache_file (name)):
@@ -53,17 +57,24 @@ def _check_exists (name):
 
 #
 #  set_resolution - configures the resolution for the gui display.
-#                   This must be called before, select.
+#                   This must be called before, select, unitX, unitY
+#                   posX, posY.  Preferably at the beginning of the program.
+#                   Pre-condition:  None.
+#                   Post-condition:  configure resolution of the window
+#                   or screen.
 #
 
 def set_resolution (x, y):
     global display_width, display_height
-    display_width, display, height = x, y
+    display_width, display_height = x, y
 
 
 #
 #  unitX - v is a floating point number and unitX returns the
 #          distance in pixels.  0.0..1.0  X axis.
+#          Pre-condition:  None.
+#          Post-condition:  returns the pixels represented by, v,
+#                           where, v, is in the range 0.0..1.0
 #
 
 def unitX (v):
@@ -72,6 +83,9 @@ def unitX (v):
 #
 #  unitY - v is a floating point number and unitY returns the
 #          distance in pixels.  0.0..1.0  Y axis.
+#          Pre-condition:  None.
+#          Post-condition:  returns the pixels represented by, v,
+#                           where, v, is in the range 0.0..1.0
 #
 
 def unitY (v):
@@ -80,6 +94,9 @@ def unitY (v):
 #
 #  posX - v is a floating point number and posX returns the
 #         position in pixels.  0.0..1.0  X axis.
+#         Pre-condition:  None.
+#         Post-condition:  returns the pixels represented by, v,
+#                          where, v, is in the range 0.0..1.0
 #
 
 def posX (v):
@@ -88,6 +105,9 @@ def posX (v):
 #
 #  posY - v is a floating point number and posY returns the
 #         position in pixels.  0.0..1.0  Y axis.
+#         Pre-condition:  None.
+#         Post-condition:  returns the pixels represented by, v,
+#                          where, v, is in the range 0.0..1.0
 #
 
 def posY (v):
@@ -213,7 +233,7 @@ class text_tile:
         self._ticks = ticks
         return result
     #
-    #  dselect - places the tile into the active state.
+    #  deselect - places the tile into the active state.
     #
     def deselect (self):
         if self._state != tile_frozen:
@@ -262,14 +282,23 @@ class text_tile:
         if not (self._flush is None):
             self._flush ()
 
-def flattern_directories (name):
+#
+#  flattern_directories - replace / with - and return the string, name.
+#
+
+def _flattern_directories (name):
     name = name.replace ("/", "-")
     # print "flattened", name
     return name
 
+#
+#  cache_file - return the absolute file which will be in the touchgui cache.
+#               $HOME/.cache/touchgui/name.
+#
+
 def _cache_file (name):
     # print name
-    name = flattern_directories (name)
+    name = _flattern_directories (name)
     # print "flatterned to", name
     # assert (name[0] != "-")
     return os.path.join (os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui"), name)
@@ -302,6 +331,13 @@ def _errorf (s):
     os.sys.exit (1)
 
 
+#
+#  image_gui - create or load an image from a filename, which can be further transformed
+#              via a few colour transformations.
+#              Pre-condition:   None.
+#              Post-condition:  Image object created.
+#
+
 class image_gui:
     def __init__ (self, name):
         if not os.path.isfile (name):
@@ -309,7 +345,7 @@ class image_gui:
         self.name = name
 
     #
-    #  grey -
+    #  grey - convert image into a greyscale image.
     #
 
     def grey (self):
@@ -407,10 +443,14 @@ class image_gui:
         return pygame.image.load (self.name).convert_alpha ()
 
 
+#
+#  color_tile - create a colored tile.
+#               Pre-condition:  None.
+#               Post-condition:  a new tile is created which has a, color, width
+#                                and height.
+#
+
 class color_tile:
-    #
-    #  create a tile of a color
-    #
     def __init__ (self, color, width, height):
         self.color = color
         self.size = (width, height)
@@ -418,16 +458,15 @@ class color_tile:
     def load_image (self):
         return self.surface.convert_alpha ()
 
+#
+#  image_tile - create an image_tile at point x, y
+#               with a width, height.
+#               The image_list be in the following order:
+#               [frozen, active, activated, pressed].
+#               action (tid) is called if this tile is pressed.
+#
 
 class image_tile:
-    #
-    #  image_tile - create an image_tile at point x, y
-    #               with a width, height.
-    #               The image_list be in the following order:
-    #               [frozen, active, activated, pressed].
-    #               action (tid) is called if this tile is pressed.
-    #               --fixme-- do we need flush?
-    #
     def __init__ (self, image_list,
                   x, y, width, height, action=None, tid=None, flush=None):
         #  the _image list must be in this order (the same as the tile_state above)
@@ -471,7 +510,7 @@ class image_tile:
         self._ticks = ticks
         return result
     #
-    #  dselect - set active all unfrozen tiles.
+    #  deselect - set active all unfrozen tiles.
     #
     def deselect (self):
         if self._state != tile_frozen:
@@ -547,7 +586,7 @@ def _select (forms):
         f.select ()
 
 #
-#  dselect - set active all tiles which are not frozen.
+#  deselect - set active all tiles which are not frozen.
 #
 
 def deselect (forms):
@@ -560,9 +599,15 @@ def deselect (forms):
 #                 supply a finish function.
 #
 
-def never_finish ():
+def _never_finish ():
     return False
 
+
+#
+#  wait_for_no_more_events - waits until the left button
+#                            (or finger tap) has completed
+#                            (released).
+#
 
 def wait_for_no_more_events ():
     pressed = pygame.mouse.get_pressed ()
@@ -576,20 +621,38 @@ def wait_for_no_more_events ():
 #           finished is polled to see if the function should return.
 #           timeout is the maximum no. of milliseconds the function
 #           can poll.
+#           timeout is optional and defaults to -1 if absent.
+#           finished is optional and defaults to None if absent.
+#
+#           Pre-condition:  forms is a list of tiles.
+#                           event_test is a call back function
+#                           which has a single parameter (event).
+#                           finished is a call back with no parameters
+#                           and returns a boolean indicating if the
+#                           select loop should finish.
+#                           timeout is in seconds, which is the longest
+#                           time select will spend in the loop before returning.
+#           Post-condition: None.  Any clicked tiles will have their callback
+#                           functions called and event_test, finished are called
+#                           as appropriate.
 #
 
 def select (forms, event_test, finished = None, timeout = -1):
     if timeout == -1:
-        blocking_select (forms, event_test, finished)
+        _blocking_select (forms, event_test, finished)
     else:
-        nonblocking_select (forms, event_test, finished, timeout)
+        _nonblocking_select (forms, event_test, finished, timeout)
 
+#
+#  nonblocking_select - a less efficient implementation of select, necessary
+#                       as the timeout is in use.  It will poll the mouse.
+#
 
-def nonblocking_select (forms, event_test, finished, timeout):
+def _nonblocking_select (forms, event_test, finished, timeout):
     global need_update
 
     if finished == None:
-        finished = never_finish
+        finished = _never_finish
     wait_for_no_more_events ()
     update (forms)
     pygame.display.update ()
@@ -639,11 +702,16 @@ def nonblocking_select (forms, event_test, finished, timeout):
             return
 
 
-def blocking_select (forms, event_test, finished):
+#
+#  blocking_select - no timeout is used therefore this implementation of select
+#                    can be more efficient.  It blocks until an event occurs.
+#
+
+def _blocking_select (forms, event_test, finished):
     global need_update
 
     if finished == None:
-        finished = never_finish
+        finished = _never_finish
     wait_for_no_more_events ()
     update (forms)
     pygame.display.update ()
@@ -673,15 +741,30 @@ def blocking_select (forms, event_test, finished):
             update (forms)
             pygame.display.update ()
 
+#
+#  set_display - Pre-condition:  None.
+#                Post-condition:  internal variables, display_width and display_height are
+#                                 set to, width, and, height.
+#
 
 def set_display (display, width, height):
     global gameDisplay, display_width, display_height
     gameDisplay = display
     display_width, display_height = width, height
 
+#
+#  create_cache - Pre-condition:  None.
+#                 Post-condition:  directory $HOME/.cache/touchgui created.
+#
+
 def _create_cache ():
     d = os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui")
     os.system ("mkdir -p %s" % (d))
+
+#
+#  reset_cache - Pre-condition:  None.
+#                Post-condition:  all contents of $HOME/.cache/touchgui are deleted.
+#
 
 def reset_cache ():
     d = os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui")

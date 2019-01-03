@@ -1,0 +1,27 @@
+
+2019-01-03	Gaius Mulley <gaius.mulley@southwales.ac.uk>
+
+	* initial release (1.0).
+	* doc/pge.texi:  completed documentation.
+	* doc/version.texi:
+	* examples/singleglyph.py:
+	* examples/singleimage.py:
+	* examples/touchmany.py:
+	* touchgui.py:  updated comments.
+	* www/tools/texi2tr/html/about.html
+	* www/tools/texi2tr/html/community.html
+	* www/tools/texi2tr/html/development.html
+	* www/tools/texi2tr/html/download.html
+	* www/tools/texi2tr/html/heading.ht
+	* www/tools/texi2tr/html/homepage.html
+	* www/tools/texi2tr/html/index.html
+	* www/tools/texi2tr/html/license.html
+	* www/tools/texi2tr/html/news.html
+	* www/tools/texi2tr/html/platforms.html
+	* www/tools/texi2tr/html/release.html
+	* www/tools/texi2tr/html/users.html
+	* www/tools/texi2tr/src/config.pyc
+	* a/www/tools/texi2tr/src/config.pyc
+	* www/tools/texi2tr/src/navigation.pyc
+	* a/www/tools/texi2tr/src/navigation.pyc
+	* www/tools/texi2tr/src/outputdev.pyc
