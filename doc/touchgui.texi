@@ -1,0 +1,220 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename touchgui.info
+@set version-touchgui     1.0
+@set version-update  2019-01-03
+@settitle GNU Touchgui @value{version-touchgui}
+@c %**end of header
+
+@titlepage
+@sp 10
+@center @titlefont{Pygame Touchgui}
+@sp 10
+@center @titlefont{touchgui-@value{version-touchgui}}
+@c
+
+@page
+@setchapternewpage odd
+@sp 2
+@center Gaius Mulley
+@sp 3
+@center Last updated @value{version-update}
+
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2019 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License.''
+
+(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
+this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development.''
+@end titlepage
+
+@contents
+
+@ifinfo
+@node Top, , (dir), (dir)
+@top GNU Touchgui
+@end ifinfo
+
+@menu
+* About:: What is GNU Touchgui.
+* Obtaining:: Obtaining GNU Touchgui.
+* Dependencies:: Package dependencies.
+@c * Installing:: Installing Touchgui.
+* Building:: Building and configuring Touchgui.
+* Examples:: Examples using Touchgui.
+* Licence:: Licence of GNU Touchgui.
+* GNU Project:: The GNU Project and GNU/Linux.
+* Module:: Python API for Touchgui.
+* Libraries::Python API for Touchgui.
+* Indices:: Content and API indices.
+@end menu
+
+@menu
+* News:: News.
+* Development:: Development.
+* Community:: Community.
+@end menu
+
+@node News, Development, , (dir)
+@chapter News
+
+No news is good news.
+
+@node Development, Community, News, (dir)
+@section Development
+
+If you are interesting in contributing please contact
+@email{gaius.mulley@@southwales.ac.uk}.
+
+@node Community, , Development, (dir)
+
+
+@node About, Obtaining, (dir), (dir)
+@chapter About Touchgui
+
+Touchgui is a simple tablet based gui for Python/Pygame.  It allows
+tiles to be created from images, colours or glyphs.  Each tile has a
+number of callbacks which are called whenever a tap or double tap
+occurs.
+
+A tile maybe in one of the following four states: images for the tile
+when in the frozen, active, activated or pressed state.  The frozen
+state is when the tile cannot be pressed (the application might choose
+to disable the tile).  The active state is when the tile can be
+pressed by the user.  The activated state is when the mouse pointer is
+hovering over the tile (but not pressed).  Finally the pressed state
+is when the button is tapped.
+
+@node Obtaining, Building, About, (dir)
+@chapter Obtaining Touchgui
+
+Assuming that you are using Debian Stretch you could obtain @file{touchgui}
+adding these entries to your @file{/etc/apt/sources.list}.
+
+@example
+
+deb http://floppsie.comp.glam.ac.uk/debian/ stretch main
+deb-src http://floppsie.comp.glam.ac.uk/debian/ stretch main
+@end example
+
+Now they can be installed by using the following commands:
+
+@example
+$ sudo apt update
+$ sudo apt upgrade
+$ sudo apt install touchgui
+@end example
+
+@node Dependencies, Building, Obtaining, (dir)
+@section Dependencies
+
+Touchgui requires the following packages to be installed:
+@file{automake},
+@file{autoconf},
+@file{autotools-dev},
+@file{python},
+@file{python-pygame},
+and
+@file{texinfo}.
+
+@footnote{
+You do not need
+to perform any of these commands if you are using Touchgui in a laboratory
+at the University of Southwales.
+}
+
+@node Building, Examples, Dependencies, (dir)
+
+@chapter Building from source
+
+You can download a copy Touchgui github
+@uref{https://github.com/gaiusm/touchgui} using the following commands.
+
+@example
+$ git clone https://github.com/gaiusm/touchgui
+@end example
+
+You can configure Touchgui by:
+
+@example
+$ mkdir -p build-touchgui
+$ cd build-touchgui
+$ ../touchgui/configure
+@end example
+
+and @file{touchgui} can be built by typing:
+
+@example
+$ make
+@end example
+
+@node Examples, Licence, News, (dir)
+@chapter Examples
+
+The example source code can be found under @file{touchgui/examples}.
+
+@include examples/singleimage/README.texi
+@include examples/singleglyph/README.texi
+@include examples/touchmany/README.texi
+
+@node Licence, GNU Project, Examples, (dir)
+
+@section GPL-3.0
+@include gpl-3.0.texi
+
+
+@node GNU Project, Using, Licence, (dir)
+
+@c @include gnu.texi
+
+@node Using, Module, GNU Project, (dir)
+@chapter Using Python and Touchgui
+
+Once touchgui has been installed you can import the python module
+@code{touchgui} and utilise it in your code.
+
+@node Module, Libraries, Using, (dir)
+
+@page
+@section Touchgui Python API
+@include touchgui-api.texi
+
+@node Libraries, Indices, Module, (dir)
+@section Libraries
+
+@ifhtml
+@menu
+* Methods::  Methods and classes.
+@end menu
+@end ifhtml
+
+@node Indices, , Module, (dir)
+@section Indices
+
+@ifhtml
+@menu
+* Contents::   Section and subsections.
+* Methods::  Methods and classes.
+@end menu
+
+@node Contents, Methods, ,
+@section Section and subsections
+@printindex cp
+
+@node Methods, , Contents,
+@section Methods and classes.
+@end ifhtml
+
+@printindex fn
+
+@summarycontents
+@contents
+@bye
