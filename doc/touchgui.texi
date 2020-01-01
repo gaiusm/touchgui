@@ -120,7 +120,7 @@ Touchgui requires the following packages to be installed:
 @file{automake},
 @file{autoconf},
 @file{autotools-dev},
-@file{python},
+@file{python3},
 @file{python-pygame},
 and
 @file{texinfo}.

@@ -9,7 +9,7 @@ images for the tile when in the frozen, active, activated, pressed state.
 @subsection Code for singleimage implementation
 
 @example
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *

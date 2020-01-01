@@ -11,7 +11,7 @@ bindir= @bindir@
 INSTALL_PROGRAM = install
 
 TEXI2HTML=python $(srcdir)/www/tools/texi2tr/src/texi2tr.py
-PYTHON_VERSION=$(strip $(shell python -V 2>&1 | cut -b8- | cut -f1-2 -d'.'))
+PYTHON_VERSION=$(strip $(shell python3 -V 2>&1 | cut -b8- | cut -f1-2 -d'.'))
 
 DISTFILES = Makefile.am configure.ac configure \
             README version.c COPYING examples doc
@@ -22,10 +22,10 @@ all: force
 install: force
 	if [ ! -f touchgui.py ] ; then cp $(srcdir)/touchgui.py . ; fi
 	if [ ! -f touchguipalate.py ] ; then cp $(srcdir)/touchguipalate.py . ; fi
-	PYTHONPATH=.:$(srcdir)/python python $(srcdir)/touchguisetup.py build
-	python -m py_compile touchgui.py
-	python -m py_compile touchguiconf.py
-	python -m py_compile touchguipalate.py
+	PYTHONPATH=.:$(srcdir)/python python3 $(srcdir)/touchguisetup.py build
+	python3 -m py_compile touchgui.py
+	python3 -m py_compile touchguiconf.py
+	python3 -m py_compile touchguipalate.py
 	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # touchgui.py a simple touch gui for Pygame.
 #
-# Copyright (C) 2018 Free Software Foundation, Inc.
+# Copyright (C) 2018-2020 Free Software Foundation, Inc.
 # Contributed by Gaius Mulley <gaius@glam.ac.uk>.
 #
 # This file is part of TouchGui.
@@ -30,9 +30,9 @@ from pygame.locals import *
 from touchguipalate import *
 
 display_width, display_height = None, None
-fuzz = "100%"
 
 double_tap = 500   # no of millisecs to perform double tap
+default_fuzz = 1.0  # 0.0 to 1.0 amount of matching accuracy against original color.  0.0 exact, 1.0 any.
 
 
 #
@@ -170,7 +170,7 @@ def _text_objects (text, font, colour = white):
     return textSurface, textSurface.get_rect ()
 
 # tile_state enumerated type.  Order must be coordinated with the _colours list below
-tile_frozen, tile_active, tile_activated, tile_pressed = range (4)
+tile_frozen, tile_active, tile_activated, tile_pressed = list (range (4))
 
 #
 #  text_tile - create a tile from text.
@@ -193,8 +193,8 @@ class text_tile:
                   x, y, width, height, action=None, tid=None, flush=None):
         # the _colour list must be in this order (the same as the tile_state above)
         self._colours = [frozen_colour, default_colour, activated_colour, pressed_colour]
-        self._x = x
-        self._y = y
+        self._x = int (x)
+        self._y = int (y)
         self._width = width
         self._height = height
         self._action = action
@@ -204,7 +204,7 @@ class text_tile:
         self._text_size = text_size
         self._text_font = pygame.font.SysFont (None, text_size)
         self._text_surf, self._text_rect = _text_objects (text_message, self._text_font, white)
-        self._text_rect.center = ( (x+(width/2)), (y+(height/2)) )
+        self._text_rect.center = ( (x + int (width/2)), (y + int (height/2)) )
         self._state = tile_active
         self._flush = flush
     #
@@ -327,7 +327,7 @@ def find_file (name):
 
 
 def _errorf (s):
-    print s
+    print (s)
     os.sys.exit (1)
 
 
@@ -359,43 +359,48 @@ class image_gui:
         return self
 
     #
-    #  white2red -
+    #  white2red - convert white into red. fuzz is the amount of accuracy necessary for the match.
+    #              0.0 is exact match, 1.0 is any match.
     #
 
-    def white2red (self):
+    def white2red (self, fuzz = default_fuzz):
         newname = "%s-red" % (self.name.split ("/")[-1])
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -fuzz %s -fill red -opaque white %s" % (find_file (self.name), fuzz, _cache_file (newname)))
+        _safe_system ("convert %s -alpha off -fuzz %d%% -fill red -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
 
     #
-    #  white2blue -
+    #  white2blue - convert white into blue. fuzz is the amount of accuracy necessary for the match.
+    #               0.0 is exact match, 1.0 is any match.
     #
 
-    def white2blue (self):
+    def white2blue (self, fuzz = default_fuzz):
         newname = "%s-blue" % (self.name.split ("/")[-1])
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -fuzz %s -fill blue -opaque white %s" % (find_file (self.name), fuzz, _cache_file (newname)))
+        _safe_system ("convert %s -alpha off -fuzz %d%% -fill blue -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
 
     #
-    #  white2grey -
+    #  white2grey - convert white into grey.
+    #               fuzz is the amount of accuracy necessary for the match.
+    #               0.0 is exact match, 1.0 is any match.
+    #               value is the grey value, 0.0 is black, 1.0 is white.
     #
 
-    def white2grey (self, value=.85):
+    def white2grey (self, value=.85, fuzz = default_fuzz):
         newname = "%s-grey" % (self.name.split ("/")[-1])
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz,
+        _safe_system ("convert %s -alpha off -fuzz %d%% -fill 'rgb(%d,%d,%d)' -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100),
                                                                                      int (value * 255.0), int (value * 255.0), int (value * 255.0),
                                                                                      _cache_file (newname)))
         _check_exists (newname)
@@ -403,10 +408,12 @@ class image_gui:
         return self
 
     #
-    #  white2rgb -
+    #  white2rgb - convert white into rgb.
+    #              fuzz is the amount of accuracy necessary for the match.
+    #              0.0 is exact match, 1.0 is any match.
     #
 
-    def white2rgb (self, r=.85, g=.85, b=.85):
+    def white2rgb (self, r=.85, g=.85, b=.85, fuzz = default_fuzz):
         r = int (r * 256.0)
         g = int (g * 256.0)
         b = int (b * 256.0)
@@ -414,13 +421,13 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -fuzz %s -fill 'rgb(%d,%d,%d)' -opaque white %s" % (find_file (self.name), fuzz, r, g, b, _cache_file (newname)))
+        _safe_system ("convert %s -alpha off -fuzz %d%% -fill 'rgb(%d,%d,%d)' -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), r, g, b, _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
 
     #
-    #  resize -
+    #  resize - resize an image of width x height pixels.
     #
 
     def resize (self, width, height):
@@ -434,7 +441,8 @@ class image_gui:
         return self
 
     #
-    #  load_image -
+    #  load_image - load the image from cache if possible,
+    #               if not load it from the current directory.
     #
 
     def load_image (self):
@@ -478,6 +486,7 @@ class image_tile:
         self._action = action
         self._getid = tid
         self._ticks = None
+        self._background = black
         mouse = pygame.mouse.get_pos ()
         if self._x+self._width > mouse[0] > self._x and self._y+self._height > mouse[1] > self._y:
             self._state = tile_activated
@@ -548,11 +557,12 @@ class image_tile:
     #
     def update (self):
         self._image_rect = self._images[self._state].load_image ().get_rect ()
-        self._image_rect.center = ( (self._x+(self._width/2)), (self._y+(self._height/2)) )
+        self._image_rect.center = ( (self._x + int (self._width/2)), (self._y + int (self._height/2)) )
 
         # print "update text_tile",
-        pygame.draw.rect (gameDisplay, black,
-                          (self._x, self._y, self._width, self._height))
+        if self._background != None:
+            pygame.draw.rect (gameDisplay, self._background,
+                              (self._x, self._y, self._width, self._height))
         # print self._x, self._y, self._width, self._height, self._y - self._height
         gameDisplay.blit (self._images[self._state].load_image (), self._image_rect)
     #
@@ -567,6 +577,13 @@ class image_tile:
     def set_images (self, image_list):
         self._images = image_list
         self.update ()
+    #
+    #  set_background - sets the background color to background.
+    #                   If this is never called the default color is black.
+    #                   It can be set to None.
+    #
+    def set_background (self, background):
+        self._background = background
 
 #
 #  update - redraw all tiles in forms.
@@ -771,4 +788,4 @@ def reset_cache ():
     _safe_system ("rm -r %s" % (d))
     _create_cache ()
 
-# reset_cache ()
+reset_cache ()

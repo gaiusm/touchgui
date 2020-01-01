@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
@@ -17,7 +17,7 @@ def event_test (event):
 
 
 def myquit (name = None, tap = 1):
-    print "quit called"
+    print("quit called")
     pygame.display.update ()  # need this to see the button pressed before we quit
     pygame.time.delay (toggle_delay * 2) #  delay program so we see the button change
     pygame.quit ()  #  now shutdown pygame
@@ -25,7 +25,7 @@ def myquit (name = None, tap = 1):
 
 
 def myreturn (name, tap):
-    print "return called"
+    print("return called")
 
 
 def imagedir (name):
@@ -49,7 +49,7 @@ def button ():
 
 
 def pressed (name, tap):
-    print name, "pressed"
+    print(name, "pressed")
 
 
 #
@@ -58,7 +58,7 @@ def pressed (name, tap):
 
 def glyph ():
     return [touchgui.text_tile (touchguipalate.wood_dark, touchguipalate.gold, touchguipalate.wood_light, touchguipalate.wood_light,
-                                u'\u00F7', touchgui.unitY (0.05),
+                                '\u00F7', touchgui.unitY (0.05),
                                 touchgui.posX (0.0), touchgui.posY (1.0),
                                 100, 100, pressed, "divide")]
 

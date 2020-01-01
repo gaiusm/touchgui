@@ -1,3 +1,10 @@
+touchgui (2.0.0-1.0) UNRELEASED; urgency=medium
+
+  * Release 2.0.0-1.0 generated.
+  * Touchgui converted into Python3.
+
+ -- Gaius Mulley <gaius@gnu.org>  Sun, 22 Dec 2019 22:36:02 +0000
+
 touchgui (1.0.0-1.0) UNRELEASED; urgency=medium
 
   * Release 1.0.0-1.0 generated.

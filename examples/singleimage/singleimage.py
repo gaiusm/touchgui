@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
@@ -17,7 +17,7 @@ def event_test (event):
 
 
 def myquit (name = None, tap = 1):
-    print "quit called"
+    print("quit called")
     pygame.display.update ()  # need this to see the button pressed before we quit
     pygame.time.delay (toggle_delay * 2) #  delay program so we see the button change
     pygame.quit ()  #  now shutdown pygame
@@ -25,7 +25,7 @@ def myquit (name = None, tap = 1):
 
 
 def myreturn (name, tap):
-    print "return called"
+    print("return called")
 
 
 def imagedir (name):

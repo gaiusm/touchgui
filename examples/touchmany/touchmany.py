@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
@@ -77,7 +77,7 @@ def main ():
     touchgui.set_display (gameDisplay, display_width, display_height)
 
     forms = buttons () + more_buttons ()
-    print len (forms)
+    print(len (forms))
     gameDisplay.fill (touchguipalate.black)
     touchgui.select (forms, event_test)
 

@@ -5,7 +5,7 @@ This example places 100's of identical buttons on the screen.
 @subsection Code for touchmany implementation
 
 @example
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *

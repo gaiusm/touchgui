@@ -1,3 +1,8 @@
+2020-01-01	Gaius Mulley <gaius.mulley@southwales.ac.uk>
+
+	* release (2.0).  Huge number of changes and bug fixes.
+	* Python3 used throughout.
+	* image_tiles may have a background color (or None) associated with them.
 
 2019-01-03	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 

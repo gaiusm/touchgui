@@ -10,7 +10,7 @@ more detail on states.
 @subsection Code for singleglyph implementation
 
 @example
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
