@@ -1,2 +1,2 @@
-@set version-touchgui     1.0
-@set updated-last         2018-12-18
+@set version-touchgui     2.0
+@set updated-last         2020-01-01
