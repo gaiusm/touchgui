@@ -28,11 +28,8 @@ install: force
 	python3 -m py_compile touchguipalate.py
 	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
-	$(INSTALL_PROGRAM) -m 644 touchgui.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguiconf.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
-	$(INSTALL_PROGRAM) -m 644 touchguiconf.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguipalate.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
-	$(INSTALL_PROGRAM) -m 644 touchguipalate.pyc $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	cd $(srcdir) && tar cf - images | (mkdir -p $(DESTDIR)/$(datarootdir)/touchgui && cd $(DESTDIR)/$(datarootdir)/touchgui && tar xf -)
 
 documentation: touchgui.pdf touchgui.html texi2tr.css

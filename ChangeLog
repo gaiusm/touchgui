@@ -6,6 +6,7 @@
           with them.
 	* fixed documentation tools to use Python3.
 	* configure:  regenerated via autoreconf.
+	* Makefile.am:  install no longer installs pyc files.
 
 2019-01-03	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 
