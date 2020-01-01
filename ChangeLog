@@ -2,7 +2,10 @@
 
 	* release (2.0).  Huge number of changes and bug fixes.
 	* Python3 used throughout.
-	* image_tiles may have a background color (or None) associated with them.
+	* image_tiles may have a background color (or None) associated
+          with them.
+	* fixed documentation tools to use Python3.
+	* configure:  regenerated via autoreconf.
 
 2019-01-03	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 

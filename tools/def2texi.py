@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 2009,
 #               2010
@@ -9,16 +9,16 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3, or (at your option)
 # any later version.
-# 
+#
 # GNU Modula-2 is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with GNU Modula-2; see the file COPYING.  If not, write to the
 # Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA. 
+# 02110-1301, USA.
 #
 
 import sys
@@ -59,8 +59,8 @@ def displayLibraryClass():
     l = libraryClassifications[i]
 
     while True:
-        print("@node " + l[1] + ", " + next + ", " + previous + ", " + up)
-        print("@section " + l[1])
+        print(("@node " + l[1] + ", " + next + ", " + previous + ", " + up))
+        print(("@section " + l[1]))
         print("")
         displayModules(l[1], l[0], buildDir, sourceDir)
         print("")
@@ -82,7 +82,7 @@ def displayLibraryClass():
 def displayMenu():
     print("@menu")
     for l in libraryClassifications:
-        print("* " + l[1] + "::" + l[2])
+        print(("* " + l[1] + "::" + l[2]))
     print("@end menu")
 
     print("\n")
@@ -97,7 +97,7 @@ def displayMenu():
 def removeInitialComments (file, line):
     while (string.find(line, "*)") == -1):
         line = file.readline()
-        
+
 #
 #  removeFields - removes Author/Date/Last edit/SYSTEM/Revision fields from a comment within the start
 #                 of a definition module
@@ -124,10 +124,10 @@ def removeFields (file, line):
         elif (string.find(line, "SYSTEM") != -1) and (string.find(line, ":") != -1) and (string.find(line, "Description:") == -1):
             line = file.readline()
         else:
-	    print(string.replace(string.replace(string.rstrip(line),
-                                            "{", "@{"), "}", "@}"))
+	    print((string.replace(string.replace(string.rstrip(line),
+                                            "{", "@{"), "}", "@}")))
             line = file.readline()
-    print(string.rstrip(line))
+    print((string.rstrip(line)))
 
 
 #
@@ -136,7 +136,7 @@ def removeFields (file, line):
 
 def checkIndex (line):
     global inVar, inType, inConst
-    
+
     words = string.split(line)
     procedure = ""
     if (len(words)>1) and (words[0] == "PROCEDURE"):
@@ -173,24 +173,24 @@ def checkIndex (line):
             word = string.lstrip(word)
             if word != "":
                 if string.find(word, ':') == -1:
-                    print("@findex " + word + " (var)")
+                    print(("@findex " + word + " (var)"))
                 elif len(word)>0:
                     var = string.split(word, ':')
                     if len(var)>0:
-                        print("@findex " + var[0] + " (var)")
+                        print(("@findex " + var[0] + " (var)"))
 
     if inType:
         words = string.lstrip(line)
         if string.find(words, '=') != -1:
             word = string.split(words, "=")
             if (len(word[0])>0) and (word[0][0] != '_'):
-                print("@findex " + string.rstrip(word[0]) + " (type)")
+                print(("@findex " + string.rstrip(word[0]) + " (type)"))
         else:
             word = string.split(words)
             if (len(word)>1) and (word[1] == ';'):
                 # hidden type
                 if (len(word[0])>0) and (word[0][0] != '_'):
-                    print("@findex " + string.rstrip(word[0]) + " (type)")
+                    print(("@findex " + string.rstrip(word[0]) + " (type)"))
 
     if inConst:
         words = string.split(line, ';')
@@ -200,7 +200,7 @@ def checkIndex (line):
                 if string.find(word, '=') != -1:
                     var = string.split(word, '=')
                     if len(var)>0:
-                        print("@findex " + var[0] + " (const)")
+                        print(("@findex " + var[0] + " (const)"))
 
     if procedure != "":
         name = string.split(procedure, "(")
@@ -209,7 +209,7 @@ def checkIndex (line):
             if proc[-1] == ";":
                 proc = proc[:-1]
             if proc != "":
-                print("@findex " + proc)
+                print(("@findex " + proc))
 
 
 #
@@ -229,24 +229,24 @@ def parseDefinition (dir, source, build, file, needPage):
         line = f.readline()
 
     print("@example")
-    print(string.rstrip(line))
+    print((string.rstrip(line)))
     line = f.readline()
     if len(string.rstrip(line)) == 0:
-        print(string.replace(string.replace(string.rstrip(line),
-                                            "{", "@{"), "}", "@}"))
+        print((string.replace(string.replace(string.rstrip(line),
+                                            "{", "@{"), "}", "@}")))
         line = f.readline()
         if (string.find(line, "(*") != -1):
             removeFields(f, line)
         else:
-            print(string.rstrip(line))
+            print((string.rstrip(line)))
     else:
-        print(string.rstrip(line))
+        print((string.rstrip(line)))
 
     line = f.readline()
     while line:
 	line = string.rstrip(line)
 	checkIndex(line)
-        print(string.replace(string.replace(line, "{", "@{"), "}", "@}"))
+        print((string.replace(string.replace(line, "{", "@{"), "}", "@}")))
         line = f.readline()
     print("@end example")
     if needPage:
@@ -262,8 +262,8 @@ def parseModules (up, dir, build, source, listOfModules):
         next = ""
 
     while i<len(listOfModules):
-       print("@node " + dir + "/" + listOfModules[i][:-4] + ", " + next + ", " + previous + ", " + up)
-       print("@subsection " + dir + "/" + listOfModules[i][:-4])
+       print(("@node " + dir + "/" + listOfModules[i][:-4] + ", " + next + ", " + previous + ", " + up))
+       print(("@subsection " + dir + "/" + listOfModules[i][:-4]))
        parseDefinition(dir, source, build, listOfModules[i], True)
        print("\n")
        previous = dir + "/" + listOfModules[i][:-4]
@@ -282,7 +282,7 @@ def doCat (name):
     file = open(name, 'r')
     line = file.readline()
     while line:
-        print(string.rstrip(line))
+        print((string.rstrip(line)))
         line = file.readline()
     file.close()
 
@@ -304,7 +304,7 @@ def moduleMenu (dir, build, source):
     for file in listOfFiles:
         if foundFile(dir, build, source, file):
             if (len(file)>4) and (file[-4:] == '.def'):
-                print("* " + dir + "/" + file[:-4] + "::" + file)
+                print(("* " + dir + "/" + file[:-4] + "::" + file))
     print("@end menu")
     print("\n")
 
@@ -347,7 +347,7 @@ def findFile (dir, build, source, file):
     name2 = os.path.join(os.path.join(source, dir), file)
     if os.path.exists(name2):
         return name2
-    print("file cannot be found in either " + name1 + " or " + name2)
+    print(("file cannot be found in either " + name1 + " or " + name2))
     os.sys.exit(1)
 
 
@@ -377,7 +377,7 @@ def displayModules(up, dir, build, source):
         listOfModules.sort()
         parseModules(up, dir, build, source, listOfModules)
     else:
-        print("directory " + dir + " not found in either " + build + " or " + source)
+        print(("directory " + dir + " not found in either " + build + " or " + source))
 
 
 def displayCopyright ():
@@ -391,7 +391,7 @@ def displayCopyright ():
 
 def Usage():
     print("def2texi.py [-h][-bbuilddir][-uupnode][-ffilename]")
-    
+
 def collectArgs():
     buildDir="."
     sourceDir="."

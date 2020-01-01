@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-# Copyright (C) 2016
+# Copyright (C) 2016-2020
 #               Free Software Foundation, Inc.
 # This file is part of GNU Modula-2.
 #

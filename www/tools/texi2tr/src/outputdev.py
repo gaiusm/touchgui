@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # Copyright (C) 2011
 #               Free Software Foundation, Inc.
@@ -8,16 +8,16 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3, or (at your option)
 # any later version.
-# 
+#
 # GNU Modula-2 is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with GNU Modula-2; see the file COPYING.  If not, write to the
 # Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA. 
+# 02110-1301, USA.
 
 import sys
 import os
@@ -26,10 +26,10 @@ import config
 
 
 # html tag
-null_tag, title_tag, header1_tag, header2_tag, header3_tag, header4_tag, center_tag, paragraph_tag, preformatted_tag, teletype_tag, italic_tag, bold_tag, no_tag = range(13)
+null_tag, title_tag, header1_tag, header2_tag, header3_tag, header4_tag, center_tag, paragraph_tag, preformatted_tag, teletype_tag, italic_tag, bold_tag, no_tag = list(range(13))
 
 # html state machine
-init_state, known_state, end_state, copy_state, white_state, nf_state = range(6)
+init_state, known_state, end_state, copy_state, white_state, nf_state = list(range(6))
 
 # char2code contains all html character codes
 char2code = {}
@@ -162,11 +162,11 @@ class htmlDevice:
             self.anchorCount = 0
         return f, s
     #
-    #  encodeChar - 
+    #  encodeChar -
     #
     def _encodeChar (self, c):
         global char2code
-        if char2code.has_key(c):
+        if c in char2code:
             self.raw(char2code[c])
         else:
             self.raw(c)
@@ -200,11 +200,11 @@ class htmlDevice:
         if config.multipleFragments:
             self.output = open(name, 'w')
         if config.debugFragments:
-            print
-            print "----------------------------------------------"
-            print name
-            print "----------------------------------------------"
-            print
+            print()
+            print("----------------------------------------------")
+            print(name)
+            print("----------------------------------------------")
+            print()
             self.output = sys.stdout
         self.fragNo += 1
         self.deviceHeader()
@@ -518,7 +518,7 @@ class htmlDevice:
     def deviceFooter (self):
         self.raw(self._safeOpen('footer.ht', 'footer template "footer.ht"'))
     #
-    #  safeOpen - 
+    #  safeOpen -
     #
     def _safeOpen (self, filename, description):
         try:
@@ -526,10 +526,10 @@ class htmlDevice:
                 f = os.path.join(i, filename)
                 if os.path.exists(f) and os.path.isfile(f):
                     return open(f, 'r').read()
-            print "cannot open", description
+            print("cannot open", description)
             sys.exit(0)
         except:
-            print "cannot open", description
+            print("cannot open", description)
             sys.exit(0)
     #
     #  emitMenuTitle -

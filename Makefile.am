@@ -10,7 +10,7 @@ exec_prefix=@exec_prefix@
 bindir= @bindir@
 INSTALL_PROGRAM = install
 
-TEXI2HTML=python $(srcdir)/www/tools/texi2tr/src/texi2tr.py
+TEXI2HTML=python3 $(srcdir)/www/tools/texi2tr/src/texi2tr.py
 PYTHON_VERSION=$(strip $(shell python3 -V 2>&1 | cut -b8- | cut -f1-2 -d'.'))
 
 DISTFILES = Makefile.am configure.ac configure \
@@ -47,7 +47,7 @@ touchgui.dvi: touchgui-api.texi $(srcdir)/doc/touchgui.texi
 	texi2dvi -I $(srcdir)/ $(srcdir)/doc/touchgui.texi
 
 touchgui-api.texi:  force
-	python $(srcdir)/tools/py2texi.py -f$(srcdir)/touchgui.py > touchgui-api.texi
+	python3 $(srcdir)/tools/py2texi.py -f$(srcdir)/touchgui.py > touchgui-api.texi
 
 texi2tr.css: $(srcdir)/www/tools/texi2tr/html/texi2tr.css
 	cp $< $@
