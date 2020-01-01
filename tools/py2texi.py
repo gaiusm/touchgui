@@ -72,10 +72,10 @@ def rememberComment (l):
 
 
 def isDef (l):
-    return isWord (l, "def")
+    return isWord (l, "def ")
 
 def isClass (l):
-    return isWord (l, "class")
+    return isWord (l, "class ")
 
 def isWord (l, w):
     l = l.lstrip ()

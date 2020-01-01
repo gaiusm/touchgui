@@ -463,6 +463,9 @@ class color_tile:
         self.color = color
         self.size = (width, height)
         self.surface = pygame.Surface ((width, height))
+    #
+    #  load_image - convert image to a surface with an alpha channel.
+    #
     def load_image (self):
         return self.surface.convert_alpha ()
 

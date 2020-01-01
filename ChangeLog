@@ -9,6 +9,9 @@
 	* Makefile.am:  install no longer installs pyc files.
 	* www:  changed handbuilt release constant to 2.0.
 	* doc:  changed handbuilt release constant to 2.0.
+	* touchgui.py:  added load_image comment.
+	* tools/py2texi.py:  insist def and class have spaces after them
+	  to avoid conflict with a variable name.
 
 2019-01-03	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 
