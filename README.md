@@ -14,3 +14,13 @@ pygame event queue.
 
 The programmer can group tiles into forms and select/activate all
 tiles within a form.
+
+Documentation
+=============
+
+http://floppsie.comp.glam.ac.uk/touchgui/homepage.html
+
+Example code
+============
+
+http://floppsie.comp.glam.ac.uk/touchgui/examples.html

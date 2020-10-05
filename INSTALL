@@ -2,9 +2,72 @@ Installation Instructions
 =========================
 
 
-git clone https://github.com/gaiusm/touchgui
-mkdir build-touchgui
-cd build-touchgui
-../touchgui/configure
-make
-sudo make install
+Obtain the dependancies on a Debian based system
+================================================
+
+$ sudo apt install build-essential python3-pygame python3-dev autoconf
+$ sudo apt install automake autotools imagemagik
+
+
+How to install:
+===============
+
+$ cd
+$ mkdir -p Sandpit
+$ cd Sandpit
+$ git clone https://github.com/gaiusm/touchgui
+$ cd touchgui
+$ autoreconf
+$ cd ..
+$ mkdir build-touchgui
+$ cd build-touchgui
+$ ../touchgui/configure
+$ make
+$ sudo make install
+
+
+Testing TouchGui
+================
+
+
+The simplest way to test touchgui is to download a proof of
+concept application:
+
+Test using touchmap
+-------------------
+
+Install touchmap, touchmap is a fledgling application which creates doom3
+maps (using chisel).
+
+Before you run touchgui you should run the following comand in terminal:
+
+$ mkdir -p $HOME/.cache/touchgui
+
+Obtaining touchmap and configure it:
+------------------------------------
+
+$ cd
+$ mkdir -p Sandpit
+$ cd Sandpit
+$ wget http://floppsie.comp.glam.ac.uk/download/targz/touchmap-0.2.tar.gz
+$ tar zxf touchmap-0.2.tar.gz
+$ ls touchmap-0.2
+
+Build:
+------
+
+$ cd $HOME/Sandpit
+$ rm -rf build-touchmap
+$ mkdir build-touchmap
+$ cd build-touchmap
+$ ../touchmap-0.2/configure
+$ make
+
+Runing Touchmap:
+----------------
+
+$ cd $HOME/Sandpit/build-touchmap
+$ ./localrun.sh touchmap.py
+
+There are other examples of touchgui uses described in the documentation:
+http://floppsie.comp.glam.ac.uk/touchgui/examples.html
