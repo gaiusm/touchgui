@@ -3,6 +3,9 @@
 	* touchgui.py:  (text_tile::get_pos) added.
 	(text_tile::set_pos) added.  (image_tile::get_pos)
 	added.  (image_tile::set_pos) added.
+	* touchgui.py:  (surface_tile) added.
+        (image_tile::get_images) added.  (image_tile::set_images)
+	no longer calls self.update.
 
 2020-10-05	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 

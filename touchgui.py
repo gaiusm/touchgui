@@ -485,6 +485,17 @@ class color_tile:
     def load_image (self):
         return self.surface.convert_alpha ()
 
+
+class surface_tile:
+    def __init__ (self, surface):
+        self.surface = surface
+    #
+    #  load_image - convert image to a surface with an alpha channel.
+    #
+    def load_image (self):
+        return self.surface.convert_alpha ()
+
+
 #
 #  image_tile - create an image_tile at point x, y
 #               with a width, height.
@@ -595,7 +606,12 @@ class image_tile:
     #
     def set_images (self, image_list):
         self._images = image_list
-        self.update ()
+        # self.update ()
+    #
+    #  get_images - get the image list for the tile.
+    #
+    def get_images (self):
+        return self._images
     #
     #  set_background - sets the background color to background.
     #                   If this is never called the default color is black.
