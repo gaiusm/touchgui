@@ -281,6 +281,22 @@ class text_tile:
     def flush_display (self):
         if not (self._flush is None):
             self._flush ()
+    #
+    #  get_pos - return a coordinate list pair containing x, y,
+    #            position of the tile.  The coordinates units
+    #            are the pygame screen coordinates.
+    #
+    def get_pos (self):
+        return [self._x, self._y]
+    #
+    #  set_pos - assign the coordinate pair, x, y to the tile.
+    #            The coordinates units are the pygame screen
+    #            coordinates and x, y, relate to the pygame
+    #            rectangle point during creation.
+    #
+    def set_pos (self, x, y):
+        self._x, self._y = x, y
+
 
 #
 #  flattern_directories - replace / with - and return the string, name.
@@ -587,6 +603,21 @@ class image_tile:
     #
     def set_background (self, background):
         self._background = background
+    #
+    #  get_pos - return a coordinate list pair containing x, y,
+    #            position of the tile.  The coordinates units
+    #            are the pygame screen coordinates.
+    #
+    def get_pos (self):
+        return [self._x, self._y]
+    #
+    #  set_pos - assign the coordinate pair, x, y to the tile.
+    #            The coordinates units are the pygame screen
+    #            coordinates and x, y, relate to the pygame
+    #            rectangle point during creation.
+    #
+    def set_pos (self, x, y):
+        self._x, self._y = x, y
 
 #
 #  update - redraw all tiles in forms.
@@ -615,7 +646,7 @@ def deselect (forms):
 
 
 #
-#  never_finish - a dummy function used if the user does
+#  never_finish - a dummy function used if the user does not
 #                 supply a finish function.
 #
 
@@ -638,8 +669,8 @@ def wait_for_no_more_events ():
 
 #
 #  select - redraw all tiles in forms.
-#           finished is polled to see if the function should return.
-#           timeout is the maximum no. of milliseconds the function
+#           finished is a function which is polled to see if the select should return.
+#           timeout is the maximum no. of milliseconds that select
 #           can poll.
 #           timeout is optional and defaults to -1 if absent.
 #           finished is optional and defaults to None if absent.
@@ -647,7 +678,7 @@ def wait_for_no_more_events ():
 #           Pre-condition:  forms is a list of tiles.
 #                           event_test is a call back function
 #                           which has a single parameter (event).
-#                           finished is a call back with no parameters
+#                           finished is a call back function with no parameters
 #                           and returns a boolean indicating if the
 #                           select loop should finish.
 #                           timeout is in seconds, which is the longest

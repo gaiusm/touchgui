@@ -1,3 +1,9 @@
+2020-11-12	Gaius Mulley <gaius.mulley@southwales.ac.uk>
+
+	* touchgui.py:  (text_tile::get_pos) added.
+	(text_tile::set_pos) added.  (image_tile::get_pos)
+	added.  (image_tile::set_pos) added.
+
 2020-10-05	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 
 	* INSTALL:  improved with download instruction and
