@@ -1,3 +1,8 @@
+2020-04-26	Gaius Mulley <gaius.mulley@southwales.ac.uk>
+
+	* touchgui.py:  (reset_cache) fixed bug so that reset_cache
+	does not exit if the cache is not present.
+
 2020-11-18	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 
 	* touchgui.py:  (text_tile::color_tile) fills the surface
