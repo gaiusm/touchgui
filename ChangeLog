@@ -1,3 +1,7 @@
+2024-04-27	Gaius Mulley <gaiusmod2@gmail.com>
+
+	* touchgui.py: Add flip method for all tiles and form.
+
 2020-11-18	Gaius Mulley <gaius.mulley@southwales.ac.uk>
 
 	* touchgui.py:  (text_tile::color_tile) fills the surface

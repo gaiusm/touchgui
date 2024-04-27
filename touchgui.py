@@ -159,6 +159,14 @@ class form:
     def deselect (self):
         for c in self.children:
             c.deselect ()
+    #
+    #  flip - Pre-condition:  None.
+    #         Post-condition:  flip the image for each tile in the form.
+    #                          The tile position is not changed only the image.
+    #
+    def flip (self, xaxis, yaxis):
+        for c in self.children:
+            c.flip (xaxis, yaxis)
 
 #
 #  text_objects - create and return text and surface with a default white colour.
@@ -296,6 +304,13 @@ class text_tile:
     #
     def set_pos (self, x, y):
         self._x, self._y = x, y
+    #
+    #  flip - Pre-condition:  None.
+    #         Post-condition:  flip the image for the tile on the x/y axis.
+    #                          The tile position is not changed only the image.
+    #
+    def flip (self, xflip, yflip):
+        self._text_surf = self._text_surf.flip (xflip, yflip)
 
 
 #
@@ -485,6 +500,11 @@ class color_tile:
     #
     def load_image (self):
         return self.surface.convert_alpha ()
+    #
+    #
+    #
+    def flip (self, xaxis, yaxis):
+        pass
 
 
 class surface_tile:
@@ -495,6 +515,11 @@ class surface_tile:
     #
     def load_image (self):
         return self.surface.convert_alpha ()
+    #
+    #
+    #
+    def flip (self, xflip, yflip):
+        self.surface = self.surface.flip (xflip, yflip)
 
 
 #
@@ -524,6 +549,9 @@ class image_tile:
         else:
             self._state = tile_active
         self._flush = flush
+        self._image_rect = self._images[self._state].load_image ().get_rect ()
+        self._xflip = False
+        self._yflip = False
     #
     #  select - test to see if the mouse position is over the tile and it is not frozen
     #           and if the mouse is activated call the action.
@@ -595,7 +623,8 @@ class image_tile:
             pygame.draw.rect (gameDisplay, self._background,
                               (self._x, self._y, self._width, self._height))
         # print self._x, self._y, self._width, self._height, self._y - self._height
-        gameDisplay.blit (self._images[self._state].load_image (), self._image_rect)
+        gameDisplay.blit (pygame.transform.flip (self._images[self._state].load_image (), self._xflip, self._yflip),
+                          self._image_rect)
     #
     #  flush_display - call the callback if one is registered.
     #
@@ -635,6 +664,15 @@ class image_tile:
     #
     def set_pos (self, x, y):
         self._x, self._y = x, y
+    #
+    #  flip - Pre-condition:  None.
+    #         Post-condition:  flip the image for the tile on the x/y axis.
+    #                          The tile position is not changed only the image.
+    #
+    def flip (self, xflip, yflip):
+        self._xflip = xflip
+        self._yflip = yflip
+
 
 #
 #  update - redraw all tiles in forms.
@@ -660,6 +698,15 @@ def _select (forms):
 def deselect (forms):
     for f in forms:
         f.deselect ()
+
+#
+#  flip - Pre-condition:  None.
+#         Post-condition:  Foreach tile in forms flip the image
+#                          in both the x and/or y axis.
+#
+def flip (forms, xaxis, yaxis):
+    for f in forms:
+        f.flip (xaxis, yaxis)
 
 
 #
