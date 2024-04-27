@@ -883,7 +883,7 @@ def _create_cache ():
 
 def reset_cache ():
     d = os.path.join (os.path.join (os.environ["HOME"], ".cache"), "touchgui")
-    _safe_system ("rm -r %s" % (d))
+    _safe_system ("rm -rf %s" % (d))
     _create_cache ()
 
 reset_cache ()
