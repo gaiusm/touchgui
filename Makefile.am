@@ -22,14 +22,17 @@ all: force
 install: force
 	if [ ! -f touchgui.py ] ; then cp $(srcdir)/touchgui.py . ; fi
 	if [ ! -f touchguipalate.py ] ; then cp $(srcdir)/touchguipalate.py . ; fi
+	if [ ! -f touchguipanel.py ] ; then cp $(srcdir)/touchguipanel.py . ; fi
 	PYTHONPATH=.:$(srcdir)/python python3 $(srcdir)/touchguisetup.py build
 	python3 -m py_compile touchgui.py
 	python3 -m py_compile touchguiconf.py
 	python3 -m py_compile touchguipalate.py
+	python3 -m py_compile touchguipanel.py
 	$(INSTALL_PROGRAM) -m 755 -d $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchgui.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguiconf.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	$(INSTALL_PROGRAM) -m 644 touchguipalate.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
+	$(INSTALL_PROGRAM) -m 644 touchguipanel.py $(DESTDIR)/usr/lib/python$(PYTHON_VERSION)
 	cd $(srcdir) && tar cf - images | (mkdir -p $(DESTDIR)/$(datarootdir)/touchgui && cd $(DESTDIR)/$(datarootdir)/touchgui && tar xf -)
 
 documentation: touchgui.pdf touchgui.html texi2tr.css

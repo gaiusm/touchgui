@@ -3,9 +3,9 @@
 import pygame, touchgui, touchguipalate, touchguiconf, math, os
 from pygame.locals import *
 
-# display_width, display_height = 1920, 1080
 display_width, display_height = 800, 600
 display_width, display_height = 1920, 1080
+usable_width, usable_height = 1900, 1000
 full_screen = False
 full_screen = True
 toggle_delay = 250
@@ -59,7 +59,9 @@ def main ():
         gameDisplay = pygame.display.set_mode ((display_width, display_height))
 
     pygame.display.set_caption ("Simple Test")
-    touchgui.set_display (gameDisplay, display_width, display_height)
+    touchgui.set_display (gameDisplay,
+                          [display_width, display_height],
+                          [usable_width, usable_height])
 
     forms = buttons ()
     gameDisplay.fill (touchguipalate.black)

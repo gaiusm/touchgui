@@ -2,8 +2,8 @@
 #
 # touchgui.py a simple touch gui for Pygame.
 #
-# Copyright (C) 2018-2020 Free Software Foundation, Inc.
-# Contributed by Gaius Mulley <gaius@glam.ac.uk>.
+# Copyright (C) 2018-2026 Free Software Foundation, Inc.
+# Contributed by Gaius Mulley <gaiusmod2@gmail.com>.
 #
 # This file is part of TouchGui.
 #
@@ -29,11 +29,12 @@ from pygame.locals import *
 
 from touchguipalate import *
 
-display_width, display_height = None, None
-
 double_tap = 500   # no of millisecs to perform double tap
-default_fuzz = 1.0  # 0.0 to 1.0 amount of matching accuracy against original color.  0.0 exact, 1.0 any.
-
+default_fuzz = 0.75  # 0.0 to 1.0 amount of matching accuracy against original color.  0.0 exact, 1.0 any.
+default_rgb_fuzz = 1.0  # 0.0 to 1.0 amount of matching accuracy against original color.  0.0 exact, 1.0 any.
+transform_rgb_string = "convert %s -fuzz %d%% -colorspace Gray -fill 'rgb(%d,%d,%d)' -opaque white -transparent white %s"
+transform_rgb_string = "convert %s -fuzz %d%% -fill 'rgb(%d,%d,%d)' -colorize 100%% -format png32 %s"
+default_pane = None
 
 #
 #  safe_system - execute, command, and check the shell
@@ -41,6 +42,7 @@ default_fuzz = 1.0  # 0.0 to 1.0 amount of matching accuracy against original co
 #
 
 def _safe_system (command):
+    print (command)
     r = os.system (command)
     if r != 0:
         _errorf ("os.system:  failed when trying to execute: " + command + " with an exit code " + str (r))
@@ -55,6 +57,117 @@ def _check_exists (name):
     if not os.path.isfile (_cache_file (name)):
         _errorf ("convert has failed to generate " + name)
 
+class pane:
+    def __init__ (self, parent, x = None, y = None, xoffset = None, yoffset = None):
+        self.parent = parent
+        self._list_of_tiles = []
+        if x is None:
+            self.display_width = parent.display_width
+        else:
+            self.display_width = x
+        if y is None:
+            self.display_height = parent.display_height
+        else:
+            self.display_height = y
+        if xoffset is None:
+            self.xoffset = 0
+        else:
+            self.xoffset = xoffset
+        if yoffset is None:
+            self.yoffset = 0
+        else:
+            self.yoffset = yoffset
+        self._flipx = False
+        self._flipy = False
+        print ("pane (%d, %d) offsets (%d, %d)"
+               % (self.display_width, self.display_height, self.xoffset, self.yoffset))
+    def debug (self, indent = 0):
+        print (" " * indent + "pane")
+        indent += 2
+        print (" " * indent + "_flipx = ", self._flipx)
+        print (" " * indent + "_flipy = ", self._flipy)
+        print (" " * indent + "_list_of_tiles")
+        for t in self._list_of_tiles:
+            t.debug (indent + 2)
+    #
+    #  unitX - v is a floating point number and unitX returns the
+    #          distance in pixels.  0.0..1.0  X axis.
+    #          Pre-condition:  None.
+    #          Post-condition:  returns the pixels represented by, v,
+    #                           where, v, is in the range 0.0..1.0
+    #
+    def unitX (self, v):
+        return int (v * self.display_width)
+    #
+    #  unitY - v is a floating point number and unitY returns the
+    #          distance in pixels.  0.0..1.0  Y axis.
+    #          Pre-condition:  None.
+    #          Post-condition:  returns the pixels represented by, v,
+    #                           where, v, is in the range 0.0..1.0
+    #
+    def unitY (self, v):
+        return int (v * self.display_height)
+    #
+    #  posX - v is a floating point number and posX returns the
+    #         position in pixels.  0.0..1.0  X axis.
+    #         Pre-condition:  None.
+    #         Post-condition:  returns the pixels represented by, v,
+    #                          where, v, is in the range 0.0..1.0
+    #
+    def posX (self, v):
+        return int (v * self.display_width)
+    #
+    #  posY - v is a floating point number and posY returns the
+    #         position in pixels.  0.0..1.0  Y axis.
+    #         Pre-condition:  None.
+    #         Post-condition:  returns the pixels represented by, v,
+    #                          where, v, is in the range 0.0..1.0
+    #
+    def posY (self, v):
+        return self.display_height - unitY (v)
+    #
+    #  flip_pos - flips the tile position within the frame.
+    #             The x and y flipping can be flipped individually.
+    #
+    def flip_pos (self, tile, flipx, flipy):
+        posx, posy = tile.get_pos ()
+        sizex, sizey = tile.get_size ()
+        print ("tile pos (%d, %d) size (%d, %d)", posx, posy, sizex, sizey)
+        relx = posx - self.xoffset
+        rely = posy - self.yoffset
+        if flipx:
+            posx = (self.display_width - sizex - relx) + self.xoffset
+        if flipy:
+            posy = (self.display_height - sizey - rely) + self.yoffset
+        tile.set_pos (posx, posy)
+    #
+    #  add_tiles - adds tile_list to the list of managed tiles.
+    #
+    def add_tiles (self, tile_list):
+        self._list_of_tiles += tile_list
+    #
+    #  flipx - flips all managed tile positions and orientation
+    #          along the X axis.
+    #
+    def flipx (self):
+        self._flipx = not self._flipx
+        for tile in self._list_of_tiles:
+            tile.flipx ()
+            self.flip_pos (tile, True, False)
+    #
+    #  flipy - flips all managed tile positions and orientation
+    #          along the X axis.
+    #
+    def flipy (self):
+        self._flipy = not self._flipy
+        for tile in self._list_of_tiles:
+            tile.flipy ()
+            self.flip_pos (tile, False, True)
+    #
+    #  get_tiles - return all the tile in the pane.
+    #
+    def get_tiles (self):
+        return self._list_of_tiles
 #
 #  set_resolution - configures the resolution for the gui display.
 #                   This must be called before, select, unitX, unitY
@@ -64,10 +177,13 @@ def _check_exists (name):
 #                   or screen.
 #
 
-def set_resolution (x, y):
-    global display_width, display_height
-    display_width, display_height = x, y
-
+def set_resolution (actual, usable):
+    global default_pane
+    border_x = int ((actual[0] - usable[0]) / 2)
+    border_y = int ((actual[1] - usable[1]) / 2)
+    default_pane = pane (None,
+                         usable[0], usable[1],
+                         border_x, border_y)
 
 #
 #  unitX - v is a floating point number and unitX returns the
@@ -78,7 +194,10 @@ def set_resolution (x, y):
 #
 
 def unitX (v):
-    return int (v * display_width)
+    if default_pane is None:
+        _errorf ("set_resolution must be called before unitX")
+    else:
+        return default_pane.unitX (v)
 
 #
 #  unitY - v is a floating point number and unitY returns the
@@ -89,7 +208,10 @@ def unitX (v):
 #
 
 def unitY (v):
-    return int (v * display_height)
+    if default_pane is None:
+        _errorf ("set_resolution must be called before unitY")
+    else:
+        return default_pane.unitY (v)
 
 #
 #  posX - v is a floating point number and posX returns the
@@ -100,7 +222,11 @@ def unitY (v):
 #
 
 def posX (v):
-    return int (v * display_width)
+    if default_pane is None:
+        _errorf ("set_resolution must be called before posX")
+    else:
+        return default_pane.posX (v)
+
 
 #
 #  posY - v is a floating point number and posY returns the
@@ -111,7 +237,10 @@ def posX (v):
 #
 
 def posY (v):
-    return display_height - unitY (v)
+    if default_pane is None:
+        _errorf ("set_resolution must be called before posY")
+    else:
+        return default_pane.posY (v)
 
 #
 #  form - this class allows the programmer to group together multiple
@@ -121,6 +250,13 @@ def posY (v):
 class form:
     def __init__ (self, children):
         self.children = children
+    #
+    #  debug - debugging textual dump.
+    #
+    def debug (self, indent):
+        print (" " * indent + "form")
+        for c in self.children:
+            c.debug (indent + 2)
     #
     #  set_active - Pre-condition:  None.
     #               Post-condition:  all buttons are in the active
@@ -160,13 +296,23 @@ class form:
         for c in self.children:
             c.deselect ()
     #
-    #  flip - Pre-condition:  None.
-    #         Post-condition:  flip the image for each tile in the form.
-    #                          The tile position is not changed only the image.
+    #  flipx - Pre-condition:  None.
+    #          Post-condition:  flip the image for each tile in the form along the
+    #                           X axis.  The tile position is not changed only
+    #                           the image.
     #
-    def flip (self, xaxis, yaxis):
+    def flipx (self):
         for c in self.children:
-            c.flip (xaxis, yaxis)
+            c.flipx ()
+    #
+    #  flipy - Pre-condition:  None.
+    #          Post-condition:  flip the image for each tile in the form along the
+    #                           Y axis.  The tile position is not changed only
+    #                           the image.
+    #
+    def flipy (self):
+        for c in self.children:
+            c.flipy ()
 
 #
 #  text_objects - create and return text and surface with a default white colour.
@@ -179,6 +325,17 @@ def _text_objects (text, font, colour = white):
 
 # tile_state enumerated type.  Order must be coordinated with the _colours list below
 tile_frozen, tile_active, tile_activated, tile_pressed = list (range (4))
+
+def debug_state (indent, state):
+    if state == tile_frozen:
+        print (" " * indent + "state = frozen")
+    elif state == tile_active:
+        print (" " * indent + "state = active")
+    elif state == tile_activated:
+        print (" " * indent + "state = activated")
+    elif state == tile_pressed:
+        print (" " * indent + "state = pressed")
+
 
 #
 #  text_tile - create a tile from text.
@@ -215,6 +372,18 @@ class text_tile:
         self._text_rect.center = ( (x + int (width/2)), (y + int (height/2)) )
         self._state = tile_active
         self._flush = flush
+        self._flipx = False
+        self._flipy = False
+    #
+    #  debug - debugging textual dump.
+    #
+    def debug (self, indent):
+        print (" " * indent + "text_tile")
+        indent += 2
+        debug_state (indent, self._state)
+        print (" " * indent + "text_message = " + text_message)
+        print (" " * indent + "_flipx = " + self._flipx)
+        print (" " * indent + "_flipy = " + self._flipy)
     #
     #  select - test to see if the mouse position is over the tile and it is not frozen
     #           and if the mouse is activated call the action.
@@ -305,12 +474,40 @@ class text_tile:
     def set_pos (self, x, y):
         self._x, self._y = x, y
     #
-    #  flip - Pre-condition:  None.
-    #         Post-condition:  flip the image for the tile on the x/y axis.
+    #  get_size - return a coordinate list pair containing width, height
+    #             of the tile.  The coordinates units
+    #             are the pygame screen coordinates.
+    #
+    def get_size (self):
+        return [self._width, self._height]
+    #
+    #  flipx - Pre-condition:  None.
+    #         Post-condition:  flip the image for the tile on the X axis.
     #                          The tile position is not changed only the image.
     #
-    def flip (self, xflip, yflip):
-        self._text_surf = self._text_surf.flip (xflip, yflip)
+    def flipx (self):
+        self._flipx = not self._flipx
+        self._text_surf = self._text_surf.flip (self._flipx, self._flipy)
+    #
+    #  flipy - Pre-condition:  None.
+    #         Post-condition:  flip the image for the tile on the Y axis.
+    #                          The tile position is not changed only the image.
+    #
+    def flipy (self):
+        self._flipy = not self._flipy
+        self._text_surf = self._text_surf.flip (self._flipx, self._flipy)
+    #
+    #  flip_pos - Pre-condition:  None.
+    #             Post-condition: flip the tile position relative
+    #             to the pane supplied.  If no pane is supplied then
+    #             it is position flipped against the resolution of
+    #             the application.
+    #
+    def flip_pos (self, flipx, flipy, pane = None):
+        if pane is None:
+            default_pane.flip_pos (self, flipx, flipy)
+        else:
+            pane.flip_pos (self, flipx, flipy)
 
 
 #
@@ -337,11 +534,11 @@ def _cache_file (name):
 
 def _cache_exists (name):
     """
-    print "looking up cache", name,
+    print ("looking up cache", name)
     if os.path.isfile (_cache_file (name)):
-        print "yes"
+        print ("yes")
     else:
-        print "no"
+        print ("no")
     """
     return os.path.isfile (_cache_file (name))
 
@@ -374,6 +571,13 @@ class image_gui:
         if not os.path.isfile (name):
             _errorf ("image " + name + " not found")
         self.name = name
+    #
+    #  debug - debugging textual dump.
+    #
+    def debug (self, indent):
+        print (" " * indent + "image_gui")
+        indent += 2
+        print (" " * indent + "name = " + self.name)
 
     #
     #  grey - convert image into a greyscale image.
@@ -399,7 +603,7 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -alpha off -fuzz %d%% -fill red -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
+        _safe_system ("convert %s -fuzz %d%% -fill red -opaque white -transparent white %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
@@ -414,7 +618,7 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -alpha off -fuzz %d%% -fill blue -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
+        _safe_system ("convert %s -fuzz %d%% -fill blue -opaque white -transparent white %s" % (find_file (self.name), int (fuzz * 100), _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
@@ -431,9 +635,10 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -alpha off -fuzz %d%% -fill 'rgb(%d,%d,%d)' -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100),
-                                                                                     int (value * 255.0), int (value * 255.0), int (value * 255.0),
-                                                                                     _cache_file (newname)))
+        _safe_system (transform_rgb_string
+                      % (find_file (self.name), int (fuzz * 100.0),
+                         int (value * 255.0), int (value * 255.0), int (value * 255.0),
+                         _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
@@ -444,7 +649,7 @@ class image_gui:
     #              0.0 is exact match, 1.0 is any match.
     #
 
-    def white2rgb (self, r=.85, g=.85, b=.85, fuzz = default_fuzz):
+    def white2rgb (self, r=.85, g=.85, b=.85, fuzz = default_rgb_fuzz):
         r = int (r * 256.0)
         g = int (g * 256.0)
         b = int (b * 256.0)
@@ -452,7 +657,9 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -alpha off -fuzz %d%% -fill 'rgb(%d,%d,%d)' -opaque white -alpha on %s" % (find_file (self.name), int (fuzz * 100), r, g, b, _cache_file (newname)))
+        _safe_system (transform_rgb_string
+                      % (find_file (self.name), int (fuzz * 100.0),
+                         r, g, b, _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
@@ -466,7 +673,7 @@ class image_gui:
         if _cache_exists (newname):
             self.name = newname
             return self
-        _safe_system ("convert %s -resize %dx%d\! %s" % (find_file (self.name), width, height, _cache_file (newname)))
+        _safe_system ("convert %s -resize %dx%d\\! %s" % (find_file (self.name), width, height, _cache_file (newname)))
         _check_exists (newname)
         self.name = newname
         return self
@@ -480,6 +687,11 @@ class image_gui:
         if _cache_exists (self.name):
             return pygame.image.load (_cache_file (self.name)).convert_alpha ()
         return pygame.image.load (self.name).convert_alpha ()
+    def flipx (self):
+        pass
+    def flipy (self):
+        pass
+
 
 
 #
@@ -495,6 +707,10 @@ class color_tile:
         self.size = (width, height)
         self.surface = pygame.Surface ((width, height))
         self.surface.fill (color)
+    def debug (self, indent):
+        print (" " * indent + "color_tile")
+        indent += 2
+        print (" " * indent + "name = " + self.name)
     #
     #  load_image - convert image to a surface with an alpha channel.
     #
@@ -503,23 +719,41 @@ class color_tile:
     #
     #
     #
-    def flip (self, xaxis, yaxis):
+    def flipx (self):
+        pass
+    def flipy (self):
         pass
 
 
 class surface_tile:
     def __init__ (self, surface):
         self.surface = surface
+        self._flipx = False
+        self._flipy = False
+    def debug (self, indent):
+        print (" " * indent + "surface_tile")
+        indent += 2
+        print (" " * indent + "_flipx", self._flipx)
+        print (" " * indent + "_flipy", self._flipy)
     #
     #  load_image - convert image to a surface with an alpha channel.
     #
     def load_image (self):
         return self.surface.convert_alpha ()
     #
+    #  flipx - flip the surface tile along the X axis.  The position
+    #          is not altered only the image.
     #
+    def flipx (self):
+        self._flipx = not self._flipx
+        self.surface = self.surface.flip (self._flipx, self._flipy)
     #
-    def flip (self, xflip, yflip):
-        self.surface = self.surface.flip (xflip, yflip)
+    #  flipy - flip the surface tile along the Y axis.  The position
+    #          is not altered only the image.
+    #
+    def flipy (self):
+        self._flipy = not self._flipy
+        self.surface = self.surface.flip (self._flipx, self._flipy)
 
 
 #
@@ -550,8 +784,14 @@ class image_tile:
             self._state = tile_active
         self._flush = flush
         self._image_rect = self._images[self._state].load_image ().get_rect ()
-        self._xflip = False
-        self._yflip = False
+        self._flipx = False
+        self._flipy = False
+    def debug (self, indent = 0):
+        print (" " * indent + "image_tile")
+        indent += 2
+        debug_state (indent, self._state)
+        print (" " * indent + "_flipx", self._flipx)
+        print (" " * indent + "_flipy", self._flipy)
     #
     #  select - test to see if the mouse position is over the tile and it is not frozen
     #           and if the mouse is activated call the action.
@@ -623,7 +863,7 @@ class image_tile:
             pygame.draw.rect (gameDisplay, self._background,
                               (self._x, self._y, self._width, self._height))
         # print self._x, self._y, self._width, self._height, self._y - self._height
-        gameDisplay.blit (pygame.transform.flip (self._images[self._state].load_image (), self._xflip, self._yflip),
+        gameDisplay.blit (pygame.transform.flip (self._images[self._state].load_image (), self._flipx, self._flipy),
                           self._image_rect)
     #
     #  flush_display - call the callback if one is registered.
@@ -665,13 +905,42 @@ class image_tile:
     def set_pos (self, x, y):
         self._x, self._y = x, y
     #
-    #  flip - Pre-condition:  None.
-    #         Post-condition:  flip the image for the tile on the x/y axis.
-    #                          The tile position is not changed only the image.
+    #  get_size - return a coordinate list pair containing width, height
+    #             of the tile.  The coordinates units
+    #             are the pygame screen coordinates.
     #
-    def flip (self, xflip, yflip):
-        self._xflip = xflip
-        self._yflip = yflip
+    def get_size (self):
+        return [self._width, self._height]
+    #
+    #  flipx - Pre-condition:  None.
+    #          Post-condition:  flip the image for the tile on the X axis.
+    #                           The tile position is not changed only the image.
+    #
+    def flipx (self):
+        self._flipx = not self._flipx
+        for t in self._images:
+            t.flipx ()
+    #
+    #  flipy - Pre-condition:  None.
+    #          Post-condition:  flip the image for the tile on the Y axis.
+    #                           The tile position is not changed only the image.
+    #
+    def flipy (self):
+        self._flipy = not self._flipy
+        for t in self._images:
+            t.flipy ()
+    #
+    #  flip_pos - Pre-condition:  None.
+    #             Post-condition: flip the tile position relative
+    #             to the pane supplied.  If no pane is supplied then
+    #             it is position flipped against the resolution of
+    #             the application.
+    #
+    def flip_pos (self, flipx, flipy, pane = None):
+        if pane is None:
+            default_pane.flip_pos (self, flipx, flipy)
+        else:
+            pane.flip_pos (self, flipx, flipy)
 
 
 #
@@ -706,7 +975,11 @@ def deselect (forms):
 #
 def flip (forms, xaxis, yaxis):
     for f in forms:
-        f.flip (xaxis, yaxis)
+        if xaxis:
+            f.flipx ()
+        if yaxis:
+            f.flipy ()
+        # f.flip (xaxis, yaxis)
 
 
 #
@@ -862,10 +1135,10 @@ def _blocking_select (forms, event_test, finished):
 #                                 set to, width, and, height.
 #
 
-def set_display (display, width, height):
-    global gameDisplay, display_width, display_height
+def set_display (display, actual_res, usable_res, border = black):
+    global gameDisplay
     gameDisplay = display
-    display_width, display_height = width, height
+    set_resolution (actual_res, usable_res)
 
 #
 #  create_cache - Pre-condition:  None.
